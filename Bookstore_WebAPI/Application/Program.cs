@@ -2,12 +2,10 @@ using Bookstore_WebAPI.Data.Repository;
 using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Data.Services;
 using Bookstore_WebAPI.Data.Services.Interfaces;
-using Bookstore_WebAPI.Persistence;
+using Bookstore_WebAPI.Persistence.DataContext;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -29,8 +27,6 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 });
 
 var app = builder.Build();
-
-
 
 if (app.Environment.IsDevelopment())
 {

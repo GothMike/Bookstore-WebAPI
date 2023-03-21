@@ -1,6 +1,6 @@
 ﻿using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository.Interfaces;
-using Bookstore_WebAPI.Persistence;
+using Bookstore_WebAPI.Persistence.DataContext;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;

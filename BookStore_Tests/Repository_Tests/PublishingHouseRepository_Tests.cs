@@ -1,7 +1,7 @@
 ﻿
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository;
-using Bookstore_WebAPI.Persistence;
+using Bookstore_WebAPI.Persistence.DataContext;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
