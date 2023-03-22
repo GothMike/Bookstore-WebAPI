@@ -10,6 +10,9 @@ namespace Bookstore_WebAPI.Persistence.UnitOfWork
         IGenericRepository<PublishingHouse> PublishingHouseGenericRepository { get; }
         IGenericRepository<AuthorBooks> AuthorBooksGenericRepository { get; }
         IGenericRepository<AuthorPublishingHouses> AuthorPublishingHousesRepository { get; }
+        IAuthorRepository AuthorRepository { get;  }
+        IBookRepository BookRepository { get; }
+        IPublishingHouseRepository PublishingHouseRepository { get; }
         Task SaveAsync();
     }
 }

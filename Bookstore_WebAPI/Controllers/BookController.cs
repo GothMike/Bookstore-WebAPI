@@ -21,101 +21,92 @@ namespace Bookstore_WebAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Book>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
         public async Task<IActionResult> GetBooksAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _bookService.GetAllMappingEntitiesAsync());
+            return Ok(await _bookService.GetAllAsync());
         }
 
-        [HttpGet("{bookId}")]
-        [ProducesResponseType(200, Type = typeof(Book))]
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(BookDto))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetBookAsync(int bookId)
+        public async Task<IActionResult> GetBookAsync(int id)
         {
-            if (!await _bookService.EntityExistsAsync(bookId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _bookService.GetMappingEntityAsync(bookId));
+            var entity = await _bookService.GetMapEntityByIdAsync(id);
+
+            if (entity == null)
+                return NotFound();
+
+            return Ok(entity);
         }
 
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateBookAsync([FromBody] BookDto bookDto, int authorId, int publishingHouseId)
+        public async Task<IActionResult> CreateBookAsync([FromBody] BookDto entityDto, int authorId, int publishingHouseId)
         {
-            if (bookDto == null)
-                return BadRequest(ModelState);
-
-            if (!await _bookService.CheckDependentEntitiesExist(authorId, publishingHouseId))
-                return BadRequest();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (authorId == null)
+            if (entityDto == null)
                 return BadRequest(ModelState);
 
-            if (!await _bookService.CreateMappingBookAsync(bookDto, authorId, publishingHouseId))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при создании книги");
-                return StatusCode(500, ModelState);
-            }
+            if (!await _bookService.CheckDepentEntities(authorId, publishingHouseId))
+                return NotFound();
+
+           await _bookService.CreateBookAsync(entityDto, authorId, publishingHouseId);
 
             return Ok("Успешно создано");
         }
 
-        [HttpPut("{bookId}")]
+        [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateBookAsync(int bookId, [FromBody] BookDto bookDto)
+        public async Task<IActionResult> UpdateBookAsync(int id, [FromBody] BookDto entityDto)
         {
-            if (bookDto == null)
-                return BadRequest();
-
-            if (bookId != bookDto.Id)
-                return BadRequest();
-
-            if (!await _bookService.EntityExistsAsync(bookId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _bookService.UpdateMappingEntityAsync(bookDto))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при редактировании книги");
-                return StatusCode(500, ModelState);
-            }
+            if (entityDto == null)
+                return BadRequest();
 
-            return Ok($"Книга отредактирована в базе данных");
+            if (id != entityDto.Id)
+                return BadRequest();
+
+            var entity = await _bookService.GetEntityByIdAsync(id);
+
+            if (entity == null)
+                return NotFound();
+
+            await _bookService.Update(entityDto, entity);
+
+            return Ok($"Успешно отредактировано");
         }
 
-        [HttpDelete("{bookId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteBookAsync(int bookId)
+        public async Task<IActionResult> DeleteBookAsync(int id)
         {
-            if (!await _bookService.EntityExistsAsync(bookId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _bookService.DeleteEntityAsync(bookId))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при удалении книги");
-                return StatusCode(500, ModelState);
-            }
+            var entity = await _bookService.GetEntityByIdAsync(id);
 
-            return Ok($"Книга удалена из базы данных");
+            if (entity == null)
+                return NotFound();
+
+            await _bookService.DeleteAsync(entity);
+
+            return Ok($"Успешно удалено");
         }
     }
 }

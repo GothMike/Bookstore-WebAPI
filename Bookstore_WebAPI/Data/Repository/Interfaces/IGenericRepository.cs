@@ -8,6 +8,6 @@
         Task<IEnumerable<TEntity>> GetAllAsync();
         void Update(TEntity entity);
         void Delete(TEntity entity);
-        void DeleteAllAsync(IEnumerable<TEntity> entities);
+        void DeleteAllEntites(IEnumerable<TEntity> entities);
     }
 }

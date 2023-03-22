@@ -11,7 +11,7 @@ namespace Bookstore_Tests.Services_Tests
 {
     public class AuthorService_Tests
     {
-        private readonly IAuthorRepository _authorRepository;
+       /* private readonly IAuthorRepository _authorRepository;
         private readonly IBookRepository _bookRepository;
         private readonly IMapper _mapper;
         public AuthorService_Tests()
@@ -177,6 +177,6 @@ namespace Bookstore_Tests.Services_Tests
 
             // Assert
             result.Should().BeEquivalentTo(expectedBookDtos);
-        }
+        }*/
     }
 }

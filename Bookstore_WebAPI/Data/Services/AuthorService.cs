@@ -1,68 +1,72 @@
 ﻿using AutoMapper;
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Models.Dto;
-using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Data.Services.Interfaces;
+using Bookstore_WebAPI.Persistence.UnitOfWork;
 
 namespace Bookstore_WebAPI.Data.Services
 {
     public class AuthorService : IAuthorService
     {
-        private readonly IAuthorRepository _authorRepository;
-        private readonly IBookRepository _bookRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public AuthorService(IAuthorRepository authorRepository, IBookRepository bookRepository, IMapper mapper)
+        public AuthorService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _authorRepository = authorRepository;
-            _bookRepository = bookRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<ICollection<AuthorDto>> GetAllMappingEntitiesAsync()
+        public async Task<Author> GetEntityByIdAsync(int id)
         {
-            return _mapper.Map<ICollection<AuthorDto>>(await _authorRepository.GetAllAsync());
+            return  await _unitOfWork.AuthorGenericRepository.GetByIdAsync(id);
         }
 
-        public async Task<AuthorDto> GetMappingEntityAsync(int id)
+        public async Task<IEnumerable<AuthorDto>> GetAllAsync()
         {
-            return _mapper.Map<AuthorDto>(await _authorRepository.GetAsync(id));
+            return _mapper.Map<IEnumerable<AuthorDto>>(await _unitOfWork.AuthorGenericRepository.GetAllAsync());
         }
 
-        public async Task<bool> CreateMappingAuthorAsync(AuthorDto entityDto)
+        public async Task<AuthorDto> GetMapEntityByIdAsync(int id)
         {
-            return await _authorRepository.CreateAuthorAsync(MappingEntity(entityDto));
+            return _mapper.Map<AuthorDto>(await _unitOfWork.AuthorGenericRepository.GetByIdAsync(id));
         }
 
-        public Author MappingEntity(AuthorDto entityDto)
+        public async Task<IEnumerable<BookDto>> GetAllMappingAuthorBooks(int id)
+        {
+            return _mapper.Map<ICollection<BookDto>>(await _unitOfWork.BookRepository.GetAllAuthorsBooks(id));
+        }
+
+        public async Task CreateAuthorAsync(AuthorDto entityDto)
+        {
+            await _unitOfWork.AuthorGenericRepository.AddAsync(ConvertToMapEntity(entityDto));
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task Update(AuthorDto entityDto, Author entity)
+        {
+            entity.FirstName = entityDto.FirstName;
+            entity.LastName = entityDto.LastName;
+
+            _unitOfWork.AuthorGenericRepository.Update(entity);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DeleteAsync(Author entity)
+        {
+            var authorBooks = await _unitOfWork.BookRepository.GetAllAuthorsBooks(entity.Id);
+
+            if (authorBooks.Count() != 0)
+                _unitOfWork.BookGenericRepository.DeleteAllEntites(authorBooks);
+
+            _unitOfWork.AuthorGenericRepository.Delete(entity);
+
+            await _unitOfWork.SaveAsync();
+        }
+
+        public Author ConvertToMapEntity(AuthorDto entityDto)
         {
             return _mapper.Map<Author>(entityDto);
-        }
-
-        public async Task<bool> UpdateMappingEntityAsync(AuthorDto entity)
-        {
-            return await _authorRepository.UpdateAsync(MappingEntity(entity));
-        }
-
-        public async Task<bool> DeleteEntityAsync(int id)
-        {
-            var author = await _authorRepository.GetAsync(id);
-            var authorBooks = await _bookRepository.GetAllAuthorsBooks(author.Id);
-
-            await _bookRepository.DeleteAllAsync(authorBooks);
-
-            return await _authorRepository.DeleteAsync(author);
-        }
-
-        public Task<bool> EntityExistsAsync(int id)
-        {
-            return _authorRepository.EntityExistsAsync(id);
-        }
-
-        public async Task<ICollection<BookDto>> GetAllMappingAuthorBooks(int id)
-        {
-         var author = await _authorRepository.GetAsync(id);
-         return _mapper.Map<ICollection<BookDto>>(await _bookRepository.GetAllAuthorsBooks(author.Id));
         }
     }
 }

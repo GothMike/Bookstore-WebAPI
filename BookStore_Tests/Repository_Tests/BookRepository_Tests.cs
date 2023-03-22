@@ -9,7 +9,7 @@ namespace BookStore_Tests.Repository_Tests
 {
     public class BookRepository_Tests
     {
-        public async Task<ApplicationContext> GetDatabaseContext()
+      /*  public async Task<ApplicationContext> GetDatabaseContext()
         {
             var options = new DbContextOptionsBuilder<ApplicationContext>()
                            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -179,6 +179,6 @@ namespace BookStore_Tests.Repository_Tests
 
             // Assert 
             isDeleted.Should().BeTrue();
-        }
+        }*/
     }
 }

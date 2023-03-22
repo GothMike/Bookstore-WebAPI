@@ -3,8 +3,7 @@ using System.Diagnostics.Metrics;
 
 namespace Bookstore_WebAPI.Data.Repository.Interfaces
 {
-    public interface IPublishingHouseRepository : IBaseRepository<PublishingHouse>
+    public interface IPublishingHouseRepository
     {
-        Task<bool> CreatePublishingHouseAsync(PublishingHouse entity);
     }
 }

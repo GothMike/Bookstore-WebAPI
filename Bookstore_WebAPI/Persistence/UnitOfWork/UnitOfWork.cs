@@ -8,16 +8,20 @@ namespace Bookstore_WebAPI.Persistence.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private ApplicationContext _context;
+        // Generic репозитории
         private IGenericRepository<Author> _authorGenericRepository;
         private IGenericRepository<Book> _bookGenericRepository;
         private IGenericRepository<PublishingHouse> _publishingHouseGenericRepository;
         private IGenericRepository<AuthorBooks> _authorBooksGenericRepository;
         private IGenericRepository<AuthorPublishingHouses> _authorPublishingHousesRepository;
+        // репозитории
+        private IAuthorRepository _authorRepository;
+        private IBookRepository _bookRepository;
+        private IPublishingHouseRepository _publishingHouseRepository;
 
-        public UnitOfWork(ApplicationContext context)
-        {
-            _context = context;
-        }
+
+
+        public UnitOfWork(ApplicationContext context) => _context = context;
 
         public IGenericRepository<Author> AuthorGenericRepository
         {
@@ -79,6 +83,42 @@ namespace Bookstore_WebAPI.Persistence.UnitOfWork
             }
         }
 
+        public IAuthorRepository AuthorRepository
+        {
+            get
+            {
+                if (_authorRepository == null)
+                {
+                    _authorRepository = new AuthorRepository(_context);
+                }
+                return _authorRepository;
+            }
+        }
+
+        public IBookRepository BookRepository
+        {
+            get
+            {
+                if (_bookRepository == null)
+                {
+                    _bookRepository = new BookRepository(_context);
+                }
+                return _bookRepository;
+            }
+        }
+
+        public IPublishingHouseRepository PublishingHouseRepository
+        {
+            get
+            {
+                if (_publishingHouseRepository == null)
+                {
+                    _publishingHouseRepository = new PublishingHouseRepository(_context);
+                }
+                return _publishingHouseRepository;
+            }
+        }
+
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
@@ -98,7 +138,7 @@ namespace Bookstore_WebAPI.Persistence.UnitOfWork
             {
                 if (disposing)
                 {
-                    _context.DisposeAsync();
+                    _context.Dispose();
                 }
             }
             disposed = true;

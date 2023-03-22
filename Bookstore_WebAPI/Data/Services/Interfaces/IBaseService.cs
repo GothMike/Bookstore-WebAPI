@@ -1,12 +1,13 @@
 ﻿namespace Bookstore_WebAPI.Data.Services
 {
-    public interface IBaseService<T, K>
+    public interface IBaseService<TEntity, TMapEntity>
     {
-        K MappingEntity(T entity);
-        Task<ICollection<T>> GetAllMappingEntitiesAsync();
-        Task<T> GetMappingEntityAsync(int id);
-        Task<bool> UpdateMappingEntityAsync(T entity);  
-        Task<bool> DeleteEntityAsync(int id);
-        Task<bool> EntityExistsAsync(int id);
+
+        Task<IEnumerable<TMapEntity>> GetAllAsync();
+        Task<TMapEntity> GetMapEntityByIdAsync(int id);
+        Task<TEntity> GetEntityByIdAsync(int id);
+        Task Update(TMapEntity entityDto, TEntity entity);
+        Task DeleteAsync(TEntity entity);
+        TEntity ConvertToMapEntity(TMapEntity entityDto);
     }
 }

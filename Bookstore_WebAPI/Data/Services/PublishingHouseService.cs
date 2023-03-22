@@ -1,61 +1,59 @@
 ﻿using AutoMapper;
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Models.Dto;
-using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Data.Services.Interfaces;
+using Bookstore_WebAPI.Persistence.UnitOfWork;
 
 namespace Bookstore_WebAPI.Data.Services
 {
     public class PublishingHouseService : IPublishingHouseService
     {
-        private readonly IPublishingHouseRepository _publishingHouseRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public PublishingHouseService(IPublishingHouseRepository publishingHouseRepository, IMapper mapper)
+        public PublishingHouseService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _publishingHouseRepository = publishingHouseRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-
-        public async Task<bool> CreateMappingPublishingHouseAsync(PublishingHouseDto entityDto)
+        public async Task<PublishingHouse> GetEntityByIdAsync(int id)
         {
-            var publishingHouse = MappingEntity(entityDto);
-            var create = await _publishingHouseRepository.CreatePublishingHouseAsync(publishingHouse);
-            return create;
+            return await _unitOfWork.PublishingHouseGenericRepository.GetByIdAsync(id);
         }
-
-        public async Task<bool> DeleteEntityAsync(int id)
+        public async Task<IEnumerable<PublishingHouseDto>> GetAllAsync()
         {
-            var publishingHouse = await _publishingHouseRepository.GetAsync(id);
-
-            return await _publishingHouseRepository.DeleteAsync(publishingHouse);
+            return _mapper.Map<IEnumerable<PublishingHouseDto>>(await _unitOfWork.PublishingHouseGenericRepository.GetAllAsync());
         }
-
-        public Task<bool> EntityExistsAsync(int id)
+        public async Task<PublishingHouseDto> GetMapEntityByIdAsync(int id)
         {
-            return _publishingHouseRepository.EntityExistsAsync(id);
+            return _mapper.Map<PublishingHouseDto>(await _unitOfWork.PublishingHouseGenericRepository.GetByIdAsync(id));
         }
-
-        public async Task<ICollection<PublishingHouseDto>> GetAllMappingEntitiesAsync()
+        public async Task CreatePublishingHouseAsync(PublishingHouseDto entityDto)
         {
-            return _mapper.Map<ICollection<PublishingHouseDto>>(await _publishingHouseRepository.GetAllAsync());
+            await _unitOfWork.PublishingHouseGenericRepository.AddAsync(ConvertToMapEntity(entityDto));
+            await _unitOfWork.SaveAsync();
         }
-
-        public async Task<PublishingHouseDto> GetMappingEntityAsync(int id)
+        public async Task Update(PublishingHouseDto entityDto, PublishingHouse entity)
         {
-            return _mapper.Map<PublishingHouseDto>(await _publishingHouseRepository.GetAsync(id));
-        }
+            entity.Name = entityDto.Name;
 
-        public PublishingHouse MappingEntity(PublishingHouseDto entityDto)
+            _unitOfWork.PublishingHouseGenericRepository.Update(entity);
+            await _unitOfWork.SaveAsync();
+        }
+        public async Task DeleteAsync(PublishingHouse entity)
+        {
+            var publishingHouses = await _unitOfWork.BookRepository.GetAllPublishingHouseBooks(entity.Id);
+
+            if (publishingHouses.Count() != 0)
+                _unitOfWork.BookGenericRepository.DeleteAllEntites(publishingHouses);
+
+            _unitOfWork.PublishingHouseGenericRepository.Delete(entity);
+
+            await _unitOfWork.SaveAsync();
+        }
+        public PublishingHouse ConvertToMapEntity(PublishingHouseDto entityDto)
         {
             return _mapper.Map<PublishingHouse>(entityDto);
-        }
-
-        public Task<bool> UpdateMappingEntityAsync(PublishingHouseDto entity)
-        {
-            var publishingHouse = MappingEntity(entity);
-
-            return _publishingHouseRepository.UpdateAsync(publishingHouse);
         }
     }
 }

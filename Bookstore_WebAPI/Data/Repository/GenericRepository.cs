@@ -22,7 +22,7 @@ namespace Bookstore_WebAPI.Data.Repository
 
         public void Delete(TEntity entity) => _dbSet.Remove(entity);
 
-        public void DeleteAllAsync(IEnumerable<TEntity> entities) => _context.Remove(entities)  ;
+        public void DeleteAllEntites(IEnumerable<TEntity> entities) => _context.Remove(entities);
 
         public void Update(TEntity entity)
         {

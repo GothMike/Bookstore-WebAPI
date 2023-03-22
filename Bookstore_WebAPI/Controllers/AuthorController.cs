@@ -18,109 +18,103 @@ namespace Bookstore_WebAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Author>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
         public async Task<IActionResult> GetAuthorsAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _authorService.GetAllMappingEntitiesAsync());
+            return Ok(await _authorService.GetAllAsync());
         }
 
-        [HttpGet("{authorId}")]
-        [ProducesResponseType(200, Type = typeof(Author))]
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(AuthorDto))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetAuthorAsync(int authorId)
+        public async Task<IActionResult> GetAuthorAsync(int id)
         {
-            if (!await _authorService.EntityExistsAsync(authorId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _authorService.GetMappingEntityAsync(authorId));
-        }
+            var entity = await _authorService.GetMapEntityByIdAsync(id);
 
-        [HttpGet("{authorId}/books")]
-        [ProducesResponseType(200, Type = typeof(Author))]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> GetAllAuthorBooksAsync(int authorId)
-        {
-            if (!await _authorService.EntityExistsAsync(authorId))
+            if (entity == null)
                 return NotFound();
 
+            return Ok(entity);
+        }
+
+        [HttpGet("{id}/books")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetAllAuthorBooksAsync(int id)
+        {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _authorService.GetAllMappingAuthorBooks(authorId));
+            if (await _authorService.GetMapEntityByIdAsync(id) == null)
+                return NotFound();
+
+            return Ok(await _authorService.GetAllMappingAuthorBooks(id));
         }
 
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateAuthorAsync([FromBody] AuthorDto authorDto)
+        public async Task<IActionResult> CreateAuthorAsync([FromBody] AuthorDto entityDto)
         {
-            if (authorDto == null)
-                return BadRequest(ModelState);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _authorService.CreateMappingAuthorAsync(authorDto))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при создании автора");
-                return StatusCode(500, ModelState);
-            }
+            if (entityDto == null)
+                return BadRequest(ModelState);
+
+            await _authorService.CreateAuthorAsync(entityDto);
 
             return Ok("Успешно создано");
         }
 
-        [HttpPut("{authorId}")]
+        [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateAuthorAsync(int authorId, [FromBody] AuthorDto authorDto)
+        public async Task<IActionResult> UpdateAuthorAsync(int id, [FromBody] AuthorDto entityDto)
         {
-            if (authorDto == null)
-                return BadRequest();
-
-            if (authorId != authorDto.Id)
-                return BadRequest();
-
-            if (!await _authorService.EntityExistsAsync(authorId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _authorService.UpdateMappingEntityAsync(authorDto))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при редактировании автора");
-                return StatusCode(500, ModelState);
-            }
+            if (entityDto == null)
+                return BadRequest();
 
-            return Ok($"Автор отредактирован в базе данных");
+            if (id != entityDto.Id)
+                return BadRequest();
+
+            var entity = await _authorService.GetEntityByIdAsync(id);
+
+            if (entity == null)
+                return NotFound();
+
+            await _authorService.Update(entityDto, entity);
+
+            return Ok($"Успешно отредактировано");
         }
 
-        [HttpDelete("{authorId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteAuthorAsync(int authorId)
+        public async Task<IActionResult> DeleteAuthorAsync(int id)
         {
-            if (!await _authorService.EntityExistsAsync(authorId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _authorService.DeleteEntityAsync(authorId))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при удалении автора");
-                return StatusCode(500, ModelState);
-            }
+            var entity = await _authorService.GetEntityByIdAsync(id);
 
-            return Ok($"Автор удален из базы данных");
+            if (entity == null)
+                return NotFound();
+
+            await _authorService.DeleteAsync(entity);
+
+            return Ok($"Успещно удалено");
         }
     }
 }

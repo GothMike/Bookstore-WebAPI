@@ -13,50 +13,5 @@ namespace Bookstore_WebAPI.Data.Repository
         {
             _context = context;
         }
-
-        public async Task<bool> CreatePublishingHouseAsync(PublishingHouse entity)
-        {
-            await _context.AddAsync(entity);
-            return await SaveAsync();
-        }
-
-        public async Task<bool> DeleteAsync(PublishingHouse entity)
-        {
-            _context.Remove(entity);
-            return await SaveAsync();
-        }
-
-        public async Task<bool> EntityExistsAsync(int Id)
-        {
-            return await _context.PublishingHouses.AnyAsync(ph => ph.Id == Id);
-        }
-
-        public async Task<ICollection<PublishingHouse>> GetAllAsync()
-        {
-            return await _context.PublishingHouses.ToListAsync();
-        }
-
-        public async Task<PublishingHouse> GetAsync(int Id)
-        {
-            return await _context.PublishingHouses.Where(ph => ph.Id == Id).FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> UpdateAsync(PublishingHouse entity)
-        {
-            _context.Update(entity);
-            return  await SaveAsync();
-        }
-
-        public async Task<bool> SaveAsync()
-        {
-            var saved = await _context.SaveChangesAsync();
-            return saved > 0 ? true : false;
-        }
-
-        public async Task<bool> DeleteAllAsync(List<PublishingHouse> entities)
-        {
-            _context.RemoveRange(entities);
-            return await SaveAsync();
-        }
     }
 }

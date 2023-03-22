@@ -3,9 +3,9 @@ using Bookstore_WebAPI.Data.Models.Dto;
 
 namespace Bookstore_WebAPI.Data.Services.Interfaces
 {
-    public interface IBookService : IBaseService<BookDto, Book>
+    public interface IBookService : IBaseService<Book, BookDto>
     {
-        Task<bool> CreateMappingBookAsync(BookDto entityDto, int mainAuthorId, int publishingHouseId);
-        Task<bool> CheckDependentEntitiesExist(int mainAuthorId, int publishingHouseId);
+        Task CreateBookAsync(BookDto entityDto, int mainAuthorId, int publishingHouseId);
+        Task<bool> CheckDepentEntities(int mainAuthorId, int publishingHouseId);
     }
 }

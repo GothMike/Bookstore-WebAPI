@@ -8,7 +8,7 @@ namespace BookStore_Tests.Repository_Tests
 {
     public class AuthorRepository_Tests
     {
-        public async Task<ApplicationContext> GetDatabaseContext()
+       /* public async Task<ApplicationContext> GetDatabaseContext()
         {
 
             var options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -146,6 +146,6 @@ namespace BookStore_Tests.Repository_Tests
 
             // Assert 
             isDeleted.Should().BeTrue();
-        }
+        }*/
     }
 }

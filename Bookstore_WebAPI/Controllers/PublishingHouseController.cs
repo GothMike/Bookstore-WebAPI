@@ -1,9 +1,6 @@
 ﻿using Bookstore_WebAPI.Data.Models.Dto;
-using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Bookstore_WebAPI.Data.Services;
 
 namespace Bookstore_WebAPI.Controllers
 {
@@ -19,93 +16,87 @@ namespace Bookstore_WebAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<PublishingHouse>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<PublishingHouseDto>))]
         public async Task<IActionResult> GetPublishingHousesAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _publishingHouseService.GetAllMappingEntitiesAsync());
+            return Ok(await _publishingHouseService.GetAllAsync());
         }
 
-        [HttpGet("{publishingHouseId}")]
-        [ProducesResponseType(200, Type = typeof(PublishingHouse))]
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(PublishingHouseDto))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetPublishingHouseAsync(int publishingHouseId)
+        public async Task<IActionResult> GetPublishingHouseAsync(int id)
         {
-            if (!await _publishingHouseService.EntityExistsAsync(publishingHouseId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(await _publishingHouseService.GetMappingEntityAsync(publishingHouseId));
+            var entity = await _publishingHouseService.GetMapEntityByIdAsync(id);
+
+            if (entity == null)
+                return NotFound();
+
+            return Ok(entity);
         }
 
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePublishingHouseAsync([FromBody] PublishingHouseDto publishingHouseDto)
+        public async Task<IActionResult> CreatePublishingHouseAsync([FromBody] PublishingHouseDto entityDto)
         {
-            if (publishingHouseDto == null)
-                return BadRequest(ModelState);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _publishingHouseService.CreateMappingPublishingHouseAsync(publishingHouseDto))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при создании");
-                return StatusCode(500, ModelState);
-            }
+            if (entityDto == null)
+                return BadRequest(ModelState);
+
+            await _publishingHouseService.CreatePublishingHouseAsync(entityDto);
 
             return Ok("Успешно создано");
         }
 
-        [HttpPut("{publishingHouseId}")]
+        [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdatePublishingHouseAsync(int publishingHouseId, [FromBody] PublishingHouseDto publishingHouseDto)
+        public async Task<IActionResult> UpdatePublishingHouseAsync(int id, [FromBody] PublishingHouseDto entityDto)
         {
-            if (publishingHouseDto == null)
-                return BadRequest();
-
-            if (publishingHouseId != publishingHouseDto.Id)
-                return BadRequest();
-
-            if (!await _publishingHouseService.EntityExistsAsync(publishingHouseId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _publishingHouseService.UpdateMappingEntityAsync(publishingHouseDto))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при редактировании");
-                return StatusCode(500, ModelState);
-            }
+            if (entityDto == null)
+                return BadRequest();
+
+            if (id != entityDto.Id)
+                return BadRequest();
+
+            var entity = await _publishingHouseService.GetEntityByIdAsync(id);
+
+            if (entity == null)
+                return NotFound();
+
+            await _publishingHouseService.Update(entityDto, entity);
 
             return Ok($"Успешно отредактировано");
         }
 
-        [HttpDelete("{publishingHouseId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> DeletePublishingHouseAsync(int publishingHouseId)
+        public async Task<IActionResult> DeletePublishingHouseAsync(int id)
         {
-            if (!await _publishingHouseService.EntityExistsAsync(publishingHouseId))
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _publishingHouseService.DeleteEntityAsync(publishingHouseId))
-            {
-                ModelState.AddModelError("", "Что-то пошло не так при удалении");
-                return StatusCode(500, ModelState);
-            }
+            var entity = await _publishingHouseService.GetEntityByIdAsync(id);
+
+            if (entity == null)
+                return NotFound();
+
+            await _publishingHouseService.DeleteAsync(entity);
 
             return Ok($"Успешно удалено");
         }
