@@ -1,6 +1,4 @@
-﻿using Bookstore_WebAPI.Data.Models;
-using Bookstore_WebAPI.Data.Models.Dto;
-using Bookstore_WebAPI.Data.Repository.Interfaces;
+﻿using Bookstore_WebAPI.Data.Models.Dto;
 using Bookstore_WebAPI.Data.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

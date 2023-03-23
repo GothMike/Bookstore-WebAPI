@@ -6,6 +6,7 @@ namespace Bookstore_WebAPI.Data.Models
     public class PublishingHouse
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public ICollection<Book>? Books { get; set; }
         public ICollection<AuthorPublishingHouses>? AuthorsPublishingHouses { get; set; }

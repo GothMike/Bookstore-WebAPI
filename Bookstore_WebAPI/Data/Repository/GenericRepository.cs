@@ -22,8 +22,8 @@ namespace Bookstore_WebAPI.Data.Repository
 
         public void Delete(TEntity entity) => _dbSet.Remove(entity);
 
-        public void DeleteAllEntites(IEnumerable<TEntity> entities) => _context.Remove(entities);
-
+        public void DeleteAllEntites(IEnumerable<TEntity> entities) => _dbSet.RemoveRange(entities);
+        
         public void Update(TEntity entity)
         {
             _context.Attach(entity);

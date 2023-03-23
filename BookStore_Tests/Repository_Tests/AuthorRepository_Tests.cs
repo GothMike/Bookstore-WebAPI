@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookStore_Tests.Repository_Tests
 {
-    public class AuthorRepository_Tests
+  /*  public class AuthorRepository_Tests
     {
-       /* public async Task<ApplicationContext> GetDatabaseContext()
+        public async Task<ApplicationContext> GetDatabaseContext()
         {
 
             var options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -79,7 +79,7 @@ namespace BookStore_Tests.Repository_Tests
         public async void AuthorRepository_CreateAsync_ReturnTrue()
         {
             // Arrange
-            var author = new Author { FirstName = "test" , LastName = "test"};
+            var author = new Author { FirstName = "test", LastName = "test" };
             var dbContext = await GetDatabaseContext();
             var authorRepository = new AuthorRepository(dbContext);
 
@@ -142,10 +142,10 @@ namespace BookStore_Tests.Repository_Tests
             List<Author> authors = new List<Author> { author1, author2 };
 
             // Act
-           var isDeleted = await authorRepository.DeleteAllAsync(authors);
+            var isDeleted = await authorRepository.DeleteAllAsync(authors);
 
             // Assert 
             isDeleted.Should().BeTrue();
-        }*/
-    }
+        }
+    }*/
 }

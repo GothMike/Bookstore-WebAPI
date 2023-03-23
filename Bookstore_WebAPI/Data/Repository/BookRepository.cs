@@ -14,20 +14,9 @@ namespace Bookstore_WebAPI.Data.Repository
             _context = context;
         }
 
-        public async Task<bool> EntityExistsAsync(int Id)
+        public async Task<IEnumerable<Book>> GetAllPublishingHouseBooks(int id)
         {
-            return await _context.Books.AnyAsync(b => b.Id == Id);
-        }
-
-        public async Task<List<Book>> GetAllPublishingHouseBooks(int id)
-        {
-            var publishingHouseBooks = await _context.Books.Where(i => i.PublishingHouseId == id).ToListAsync();
-            var books = new List<Book>();
-
-            foreach (var book in publishingHouseBooks)
-            {
-                books.Add(await _context.Books.FirstOrDefaultAsync(b => b.Id == book.PublishingHouseId));
-            }
+            var books = await _context.Books.Where(i => i.PublishingHouseId == id).ToListAsync();
 
             return books;
         }
@@ -39,7 +28,7 @@ namespace Bookstore_WebAPI.Data.Repository
 
             foreach (var book in authorBooks)
             {
-                books.Add(await _context.Books.FirstOrDefaultAsync(b => b.Id == book.Id));
+               books.Add(await _context.Books.FindAsync(book.BookId));
             }
 
             return books;
