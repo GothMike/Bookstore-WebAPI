@@ -1,6 +1,7 @@
 ﻿
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository;
+using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Persistence.DataContext;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -9,142 +10,27 @@ namespace BookStore_Tests.Repository_Tests
 {
     public class PublishingHouseRepository_Tests
     {
-       /* public async Task<ApplicationContext> GetDatabaseContext()
+        [Fact]
+        public async Task PublishingHouseRepository_GetAPHById_ShouldReturnAuthorPublishingHouse()
         {
-
+            // Arrange
             var options = new DbContextOptionsBuilder<ApplicationContext>()
-                           .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                           .Options;
+                .UseInMemoryDatabase(databaseName: "GetAPHById_ShouldReturnAuthorPublishingHouse_WhenCalled")
+                .Options;
+            var context = new ApplicationContext(options);
+            var publishingHouseRepository = new PublishingHouseRepository(context);
 
-            var databaseContext = new ApplicationContext(options);
-
-            databaseContext.Database.EnsureCreated();
-
-            if (await databaseContext.PublishingHouses.CountAsync() <= 0)
-                await databaseContext.PublishingHouses.AddRangeAsync(
-                    new PublishingHouse { Name = "Ballantine Books" },
-                    new PublishingHouse { Name = "Secker & Warburg" });
-
-            await databaseContext.SaveChangesAsync();
-
-            return databaseContext;
-        }
-
-        [Fact]
-        public async void PublishingHouseRepository_GetAsync_ReturnPublishingHouse()
-        {
-            // Arrange
-            var publishingHouseId = 1;
-            var dbContext = await GetDatabaseContext();
-            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
+            var author = new Author { Id = 1, FirstName = "John", LastName = "Doe" };
+            var publishingHouse = new PublishingHouse { Id = 1, Name = "Test Publishing House" };
+            var authorPublishingHouse = new AuthorPublishingHouses { Author = author, PublishingHouse = publishingHouse };
+            context.AuthorPublishingHouses.Add(authorPublishingHouse);
+            await context.SaveChangesAsync();
 
             // Act
-            var publishingHouse = await publishingHouseRepository.GetAsync(publishingHouseId);
+            var result = await publishingHouseRepository.GetAPHById(1);
 
-            // Assert 
-            publishingHouse.Should().NotBeNull();
-            publishingHouse.Should().BeOfType<PublishingHouse>();
+            // Assert
+            result.Should().Be(authorPublishingHouse);
         }
-
-        [Fact]
-        public async void PublishingHousetRepository_EntityExistsAsync_ReturnTrue()
-        {
-            // Arrange
-            var publishingHouseId = 1;
-            var dbContext = await GetDatabaseContext();
-            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
-
-            // Act
-            var publishingHouse = await publishingHouseRepository.EntityExistsAsync(publishingHouseId);
-
-            // Assert 
-            publishingHouse.Should().BeTrue();
-        }
-
-        [Fact]
-        public async void PublishingHouseRepository_GetAllAsync_ReturnPublishingHouses()
-        {
-            // Arrange
-             var dbContext = await GetDatabaseContext();
-             var publishingHouseRepository = new PublishingHouseRepository(dbContext);
-
-            // Act
-            var publishingHouses = await publishingHouseRepository.GetAllAsync();
-
-            // Assert 
-            publishingHouses.Should().NotBeNull();
-            publishingHouses.Should().HaveCount(c => c <= 2).And.OnlyHaveUniqueItems();
-        }
-
-        [Fact]
-        public async void PublishingHouseRepository_CreateAsync_ReturnTrue()
-        {
-            // Arrange
-            var publishingHouse = new PublishingHouse { Name = "test" };
-            var dbContext = await GetDatabaseContext();
-            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
-
-            // Act
-            var isCreated = await publishingHouseRepository.CreatePublishingHouseAsync(publishingHouse);
-            var isExists = await publishingHouseRepository.EntityExistsAsync(publishingHouse.Id);
-
-            // Assert 
-            isCreated.Should().BeTrue();
-            isExists.Should().BeTrue();
-        }
-
-        [Fact]
-        public async void PublishingHouseRepository_DeleteAsync_ReturnTrue()
-        {
-            // Arrange
-            var dbContext = await GetDatabaseContext();
-            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
-            var publishingHouse = await publishingHouseRepository.GetAsync(1);
-
-            // Act
-            var isCreated = await publishingHouseRepository.DeleteAsync(publishingHouse);
-            var isExists = await publishingHouseRepository.EntityExistsAsync(publishingHouse.Id);
-
-            // Assert 
-            isCreated.Should().BeTrue();
-            isExists.Should().BeFalse();
-        }
-
-        [Fact]
-        public async void PublishingHouseRepository_UpdateAsync_ReturnTrueAndUpdatedPublishingHouse()
-        {
-            // Arrange
-            var dbContext = await GetDatabaseContext();
-            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
-            var publishingHouse = await publishingHouseRepository.GetAsync(1);
-
-            // Act
-            publishingHouse.Name = "test";
-            var isCreated = await publishingHouseRepository.UpdateAsync(publishingHouse);
-            var updatedPublishingHouse = await publishingHouseRepository.GetAsync(1);
-
-            // Assert 
-            isCreated.Should().BeTrue();
-            updatedPublishingHouse.Name.Should().Be("test");
-            updatedPublishingHouse.Should().BeOfType<PublishingHouse>();
-            updatedPublishingHouse.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async void PublishingHouseRepository_DeleteAllAsync_ReturnTrue()
-        {
-            // Arrange
-            var dbContext = await GetDatabaseContext();
-            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
-            var ph1 = await publishingHouseRepository.GetAsync(1);
-            var ph2 = await publishingHouseRepository.GetAsync(2);
-            List<PublishingHouse> phs = new List<PublishingHouse> { ph1, ph2 };
-
-            // Act
-            var isDeleted = await publishingHouseRepository.DeleteAllAsync(phs);
-
-            // Assert 
-            isDeleted.Should().BeTrue();
-        }*/
     }
 }
