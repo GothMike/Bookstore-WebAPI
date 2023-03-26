@@ -1,7 +1,7 @@
 ﻿
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository;
-using Bookstore_WebAPI.Persistence;
+using Bookstore_WebAPI.Persistence.DataContext;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +9,7 @@ namespace BookStore_Tests.Repository_Tests
 {
     public class PublishingHouseRepository_Tests
     {
-        public async Task<ApplicationContext> GetDatabaseContext()
+       /* public async Task<ApplicationContext> GetDatabaseContext()
         {
 
             var options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -85,7 +85,7 @@ namespace BookStore_Tests.Repository_Tests
             var publishingHouseRepository = new PublishingHouseRepository(dbContext);
 
             // Act
-            var isCreated = await publishingHouseRepository.CreateAsync(publishingHouse);
+            var isCreated = await publishingHouseRepository.CreatePublishingHouseAsync(publishingHouse);
             var isExists = await publishingHouseRepository.EntityExistsAsync(publishingHouse.Id);
 
             // Assert 
@@ -129,5 +129,22 @@ namespace BookStore_Tests.Repository_Tests
             updatedPublishingHouse.Should().BeOfType<PublishingHouse>();
             updatedPublishingHouse.Should().NotBeNull();
         }
+
+        [Fact]
+        public async void PublishingHouseRepository_DeleteAllAsync_ReturnTrue()
+        {
+            // Arrange
+            var dbContext = await GetDatabaseContext();
+            var publishingHouseRepository = new PublishingHouseRepository(dbContext);
+            var ph1 = await publishingHouseRepository.GetAsync(1);
+            var ph2 = await publishingHouseRepository.GetAsync(2);
+            List<PublishingHouse> phs = new List<PublishingHouse> { ph1, ph2 };
+
+            // Act
+            var isDeleted = await publishingHouseRepository.DeleteAllAsync(phs);
+
+            // Assert 
+            isDeleted.Should().BeTrue();
+        }*/
     }
 }

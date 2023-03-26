@@ -1,6 +1,6 @@
 ﻿using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository.Interfaces;
-using Bookstore_WebAPI.Persistence;
+using Bookstore_WebAPI.Persistence.DataContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookstore_WebAPI.Data.Repository
@@ -14,43 +14,17 @@ namespace Bookstore_WebAPI.Data.Repository
             _context = context;
         }
 
-        public async Task<bool> CreateAsync(Book entity)
+        public async Task<IEnumerable<Book>> GetAllAuthorsBooks(int id)
         {
-            await _context.AddAsync(entity);
-            return await SaveAsync();
-        }
+            var authorBooks = await _context.AuthorBooks.Where(i => i.AuthorId == id).ToListAsync();
+            var books = new List<Book>();
 
-        public async Task<bool> DeleteAsync(Book entity)
-        {
-           _context.Remove(entity);
-            return await SaveAsync();
-        }
+            foreach (var book in authorBooks)
+            {
+               books.Add(await _context.Books.FindAsync(book.BookId));
+            }
 
-        public async Task<bool> EntityExistsAsync(int Id)
-        {
-            return await _context.Books.AnyAsync(b => b.Id == Id);
-        }
-
-        public async Task<ICollection<Book>> GetAllAsync()
-        {
-            return await _context.Books.ToListAsync();
-        }
-
-        public async Task<Book> GetAsync(int Id)
-        {
-            return await _context.Books.Where(b => b.Id == Id).FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> UpdateAsync(Book entity)
-        {
-            _context.Update(entity);
-            return await SaveAsync();
-        }
-
-        public async Task<bool> SaveAsync()
-        {
-            var saved = await _context.SaveChangesAsync();
-            return saved > 0 ? true : false;
+            return books;
         }
     }
 }

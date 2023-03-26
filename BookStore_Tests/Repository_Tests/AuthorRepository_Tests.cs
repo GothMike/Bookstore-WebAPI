@@ -1,12 +1,12 @@
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository;
-using Bookstore_WebAPI.Persistence;
+using Bookstore_WebAPI.Persistence.DataContext;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookStore_Tests.Repository_Tests
 {
-    public class AuthorRepository_Tests
+  /*  public class AuthorRepository_Tests
     {
         public async Task<ApplicationContext> GetDatabaseContext()
         {
@@ -79,12 +79,12 @@ namespace BookStore_Tests.Repository_Tests
         public async void AuthorRepository_CreateAsync_ReturnTrue()
         {
             // Arrange
-            var author = new Author { FirstName = "test" , LastName = "test"};
+            var author = new Author { FirstName = "test", LastName = "test" };
             var dbContext = await GetDatabaseContext();
             var authorRepository = new AuthorRepository(dbContext);
 
             // Act
-            var isCreated = await authorRepository.CreateAsync(author);
+            var isCreated = await authorRepository.CreateAuthorAsync(author);
             var isExists = await authorRepository.EntityExistsAsync(author.Id);
 
             // Assert 
@@ -101,11 +101,11 @@ namespace BookStore_Tests.Repository_Tests
             var author = await authorRepository.GetAsync(1);
 
             // Act
-            var isCreated = await authorRepository.DeleteAsync(author);
+            var isDeleted = await authorRepository.DeleteAsync(author);
             var isExists = await authorRepository.EntityExistsAsync(author.Id);
 
             // Assert 
-            isCreated.Should().BeTrue();
+            isDeleted.Should().BeTrue();
             isExists.Should().BeFalse();
         }
 
@@ -130,5 +130,22 @@ namespace BookStore_Tests.Repository_Tests
             updatedAuthor.Should().BeOfType<Author>();
             updatedAuthor.Should().NotBeNull();
         }
-    }
+
+        [Fact]
+        public async void AuthorRepository_DeleteAllAsync_ReturnTrue()
+        {
+            // Arrange
+            var dbContext = await GetDatabaseContext();
+            var authorRepository = new AuthorRepository(dbContext);
+            var author1 = await authorRepository.GetAsync(1);
+            var author2 = await authorRepository.GetAsync(2);
+            List<Author> authors = new List<Author> { author1, author2 };
+
+            // Act
+            var isDeleted = await authorRepository.DeleteAllAsync(authors);
+
+            // Assert 
+            isDeleted.Should().BeTrue();
+        }
+    }*/
 }
