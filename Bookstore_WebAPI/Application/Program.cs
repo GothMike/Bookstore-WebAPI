@@ -2,6 +2,7 @@ using Bookstore_WebAPI.Data.Repository;
 using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Data.Services;
 using Bookstore_WebAPI.Data.Services.Interfaces;
+using Bookstore_WebAPI.Middlewares;
 using Bookstore_WebAPI.Persistence.DataContext;
 using Bookstore_WebAPI.Persistence.Factory;
 using Bookstore_WebAPI.Persistence.Factory.Factory.Interfaces;
@@ -37,6 +38,10 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddLogging();
+
+builder.Services.AddTransient<ErrorHandlingMiddleware>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -48,6 +53,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapControllers();
 
