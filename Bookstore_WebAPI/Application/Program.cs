@@ -4,11 +4,15 @@ using Bookstore_WebAPI.Data.Services;
 using Bookstore_WebAPI.Data.Services.Interfaces;
 using Bookstore_WebAPI.Persistence.DataContext;
 using Bookstore_WebAPI.Persistence.UnitOfWork;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddFluentValidation(c => 
+    c.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();

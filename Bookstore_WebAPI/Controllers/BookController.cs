@@ -24,9 +24,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
         public async Task<IActionResult> GetBooksAsync()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             return Ok(await _bookService.GetAllAsync());
         }
 
@@ -35,9 +32,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetBookAsync(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var entity = await _bookService.GetMapEntityByIdAsync(id);
 
             if (entity == null)
@@ -51,9 +45,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateBookAsync([FromBody] BookDto entityDto, int authorId, int publishingHouseId)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (entityDto == null)
                 return BadRequest(ModelState);
 
@@ -71,9 +62,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateBookAsync(int id, [FromBody] BookDto entityDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (entityDto == null)
                 return BadRequest();
 
@@ -96,9 +84,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteBookAsync(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var entity = await _bookService.GetEntityByIdAsync(id);
 
             if (entity == null)

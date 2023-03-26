@@ -8,13 +8,9 @@ namespace Bookstore_WebAPI.Helper
     {
         public MappingProfile()
         {
-            CreateMap<Author, AuthorDto>();
-            CreateMap<Book, BookDto>();
-            CreateMap<PublishingHouse, PublishingHouseDto>();
-
-            CreateMap<AuthorDto, Author>();
-            CreateMap<BookDto, Book>();
-            CreateMap<PublishingHouseDto, PublishingHouse>();
+            CreateMap<Author, AuthorDto>().ReverseMap();
+            CreateMap<Book, BookDto>().ReverseMap();
+            CreateMap<PublishingHouse, PublishingHouseDto>().ReverseMap();
         }
     }
 }

@@ -19,9 +19,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
         public async Task<IActionResult> GetAuthorsAsync()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             return Ok(await _authorService.GetAllAsync());
         }
 
@@ -30,9 +27,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetAuthorAsync(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var entity = await _authorService.GetMapEntityByIdAsync(id);
 
             if (entity == null)
@@ -46,9 +40,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllAuthorBooksAsync(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (await _authorService.GetMapEntityByIdAsync(id) == null)
                 return NotFound();
 
@@ -60,9 +51,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateAuthorAsync([FromBody] AuthorDto entityDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (entityDto == null)
                 return BadRequest(ModelState);
 
@@ -77,9 +65,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateAuthorAsync(int id, [FromBody] AuthorDto entityDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (entityDto == null)
                 return BadRequest();
 
@@ -102,9 +87,6 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteAuthorAsync(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var entity = await _authorService.GetEntityByIdAsync(id);
 
             if (entity == null)
