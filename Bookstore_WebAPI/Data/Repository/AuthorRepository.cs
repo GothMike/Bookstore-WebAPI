@@ -12,5 +12,10 @@ namespace Bookstore_WebAPI.Data.Repository
         {
             _context = context;
         }
+
+        public async Task<ICollection<AuthorBooks>> GetById(int id)
+        {
+          return  await _context.AuthorBooks.Where(a => a.AuthorId == id).ToListAsync();
+        }
     }
 }

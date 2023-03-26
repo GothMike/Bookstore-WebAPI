@@ -1,86 +1,28 @@
 ﻿using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Data.Repository;
 using Bookstore_WebAPI.Persistence.DataContext;
-using Bookstore_WebAPI.Data.Models;
+using Bookstore_WebAPI.Persistence.Factory.Factory.Interfaces;
 
 namespace Bookstore_WebAPI.Persistence.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
         private ApplicationContext _context;
-        // Generic репозитории
-        private IGenericRepository<Author> _authorGenericRepository;
-        private IGenericRepository<Book> _bookGenericRepository;
-        private IGenericRepository<PublishingHouse> _publishingHouseGenericRepository;
-        private IGenericRepository<AuthorBooks> _authorBooksGenericRepository;
-        private IGenericRepository<AuthorPublishingHouses> _authorPublishingHousesRepository;
-        // репозитории
+        private readonly IRepositoryFactory _repositoryFactory;
+
         private IAuthorRepository _authorRepository;
         private IBookRepository _bookRepository;
         private IPublishingHouseRepository _publishingHouseRepository;
 
-
-
-        public UnitOfWork(ApplicationContext context) => _context = context;
-
-        public IGenericRepository<Author> AuthorGenericRepository
-        {
-            get
-            {
-                if (_authorGenericRepository == null)
-                {
-                    _authorGenericRepository = new GenericRepository<Author>(_context);
-                }
-                return _authorGenericRepository;
-            }
+        public UnitOfWork(ApplicationContext context, IRepositoryFactory repositoryFactory)
+        { 
+            _context = context; 
+            _repositoryFactory = repositoryFactory;
         }
 
-        public IGenericRepository<Book> BookGenericRepository
+        public IGenericRepository<TEntity> CreateRepository<TEntity>() where TEntity : class
         {
-            get
-            {
-                if (_bookGenericRepository == null)
-                {
-                    _bookGenericRepository = new GenericRepository<Book>(_context);
-                }
-                return _bookGenericRepository;
-            }
-        }
-
-        public IGenericRepository<PublishingHouse> PublishingHouseGenericRepository
-        {
-            get
-            {
-                if (_publishingHouseGenericRepository == null)
-                {
-                    _publishingHouseGenericRepository = new GenericRepository<PublishingHouse>(_context);
-                }
-                return _publishingHouseGenericRepository;
-            }
-        }
-
-        public IGenericRepository<AuthorBooks> AuthorBooksGenericRepository
-        {
-            get
-            {
-                if (_authorBooksGenericRepository == null)
-                {
-                    _authorBooksGenericRepository = new GenericRepository<AuthorBooks>(_context);
-                }
-                return _authorBooksGenericRepository;
-            }
-        }
-
-        public IGenericRepository<AuthorPublishingHouses> AuthorPublishingHousesRepository
-        {
-            get
-            {
-                if (_authorPublishingHousesRepository == null)
-                {
-                    _authorPublishingHousesRepository = new GenericRepository<AuthorPublishingHouses>(_context);
-                }
-                return _authorPublishingHousesRepository;
-            }
+            return _repositoryFactory.GetRepository<TEntity>();
         }
 
         public IAuthorRepository AuthorRepository

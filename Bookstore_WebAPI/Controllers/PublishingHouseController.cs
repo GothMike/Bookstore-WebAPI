@@ -76,6 +76,9 @@ namespace Bookstore_WebAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeletePublishingHouseAsync(int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var entity = await _publishingHouseService.GetEntityByIdAsync(id);
 
             if (entity == null)

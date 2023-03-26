@@ -14,13 +14,6 @@ namespace Bookstore_WebAPI.Data.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Book>> GetAllPublishingHouseBooks(int id)
-        {
-            var books = await _context.Books.Where(i => i.PublishingHouseId == id).ToListAsync();
-
-            return books;
-        }
-
         public async Task<IEnumerable<Book>> GetAllAuthorsBooks(int id)
         {
             var authorBooks = await _context.AuthorBooks.Where(i => i.AuthorId == id).ToListAsync();

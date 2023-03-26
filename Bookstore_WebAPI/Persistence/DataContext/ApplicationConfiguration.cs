@@ -8,6 +8,7 @@ namespace Bookstore_WebAPI.Persistence.DataContext
     {
         public void Configure(EntityTypeBuilder<AuthorPublishingHouses> builder)
         {
+            builder.HasKey(aph => new {aph.PublishingHouseId, aph.AuthorId});
             builder
                 .HasOne(aph => aph.Author)
                 .WithMany(a => a.AuthorPublishingHouses)
@@ -25,6 +26,8 @@ namespace Bookstore_WebAPI.Persistence.DataContext
     {
         public void Configure(EntityTypeBuilder<AuthorBooks> builder)
         {
+            builder.HasKey(ab => new { ab.AuthorId, ab.BookId });
+
             builder
                 .HasOne(ab => ab.Author)
                 .WithMany(a => a.AuthorBooks)

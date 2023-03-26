@@ -94,7 +94,7 @@ namespace Bookstore_WebAPI.Controllers
 
             await _authorService.DeleteAsync(entity);
 
-            return Ok($"Успещно удалено");
+            return Ok($"Успешно удалено");
         }
     }
 }

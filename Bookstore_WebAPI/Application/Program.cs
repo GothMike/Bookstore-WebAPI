@@ -3,6 +3,8 @@ using Bookstore_WebAPI.Data.Repository.Interfaces;
 using Bookstore_WebAPI.Data.Services;
 using Bookstore_WebAPI.Data.Services.Interfaces;
 using Bookstore_WebAPI.Persistence.DataContext;
+using Bookstore_WebAPI.Persistence.Factory;
+using Bookstore_WebAPI.Persistence.Factory.Factory.Interfaces;
 using Bookstore_WebAPI.Persistence.UnitOfWork;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IPublishingHouseRepository, PublishingHouseRepository>();
+builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

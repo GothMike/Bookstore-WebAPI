@@ -6,73 +6,63 @@ using Bookstore_WebAPI.Persistence.UnitOfWork;
 
 namespace Bookstore_WebAPI.Data.Services
 {
-    public class BookService : IBookService
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+    public class BookService : BaseAbstractService<Book,BookDto> ,IBookService
+        {
 
-        public BookService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
-        public async Task<Book> GetEntityByIdAsync(int id)
-        {
-            return await _unitOfWork.BookGenericRepository.GetByIdAsync(id);
-        }
-        public async Task<IEnumerable<BookDto>> GetAllAsync()
-        {
-            return _mapper.Map<IEnumerable<BookDto>>(await _unitOfWork.BookGenericRepository.GetAllAsync());
-        }
-        public async Task<BookDto> GetMapEntityByIdAsync(int id)
-        {
-            return _mapper.Map<BookDto>(await _unitOfWork.BookGenericRepository.GetByIdAsync(id));
-        }
+
+        
         public async Task CreateBookAsync(BookDto entityDto, int mainAuthorId, int publishingHouseId)
         {
-            var author = await _unitOfWork.AuthorGenericRepository.GetByIdAsync(mainAuthorId);
-            var publishingHouse = await _unitOfWork.PublishingHouseGenericRepository.GetByIdAsync(publishingHouseId);
-            var book = ConvertToMapEntity(entityDto);
-            book.PublishingHouse = publishingHouse;
+            var author = await _unitOfWork.CreateRepository<Author>().GetByIdAsync(mainAuthorId);
+            var publishingHouse = await _unitOfWork.CreateRepository<PublishingHouse>().GetByIdAsync(publishingHouseId);
+            var authorPublishingHouses = await _unitOfWork.PublishingHouseRepository.GetAPHById(publishingHouseId);
 
-            var authorBooks = new AuthorBooks
+                var book = ConvertToMapEntity(entityDto);
+                book.PublishingHouse = publishingHouse;
+
+                var newAuthorBooks = new AuthorBooks
+                {
+                    Author = author,
+                    Book = book,
+                };
+
+            if (authorPublishingHouses == null)
             {
-                Author = author,
-                Book = book,
-            };
+                var newAuthorPublishingHouses = new AuthorPublishingHouses
+                {
+                    Author = author,
+                    PublishingHouse = publishingHouse,
+                };
+                await _unitOfWork.CreateRepository<AuthorPublishingHouses>().AddAsync(newAuthorPublishingHouses);
+            }
 
-            var authorPublishingHouses = new AuthorPublishingHouses
-            {
-                Author = author,
-                PublishingHouse = publishingHouse,
-            };
+                await _unitOfWork.CreateRepository<Book>().AddAsync(book);
+                await _unitOfWork.CreateRepository<AuthorBooks>().AddAsync(newAuthorBooks);
 
-            await _unitOfWork.BookGenericRepository.AddAsync(book);
-            await _unitOfWork.AuthorBooksGenericRepository.AddAsync(authorBooks);
-            await _unitOfWork.AuthorPublishingHousesRepository.AddAsync(authorPublishingHouses);
             await _unitOfWork.SaveAsync();
         }
+
         public async Task Update(BookDto entityDto, Book entity)
         {
             entity.Name = entityDto.Name;
 
-            _unitOfWork.BookGenericRepository.Update(entity);
+            _unitOfWork.CreateRepository<Book>().Update(entity);
             await _unitOfWork.SaveAsync();
         }
+
         public async Task DeleteAsync(Book entity)
         {
-            _unitOfWork.BookGenericRepository.Delete(entity);
+            _unitOfWork.CreateRepository<Book>().Delete(entity);
             await _unitOfWork.SaveAsync();
-        }
-        public Book ConvertToMapEntity(BookDto entityDto)
-        {
-            return _mapper.Map<Book>(entityDto);
         }
 
         public async Task<bool> CheckDepentEntities(int mainAuthorId, int publishingHouseId)
         {
-            var author = await _unitOfWork.AuthorGenericRepository.GetByIdAsync(mainAuthorId);
-            var publishingHouse = await _unitOfWork.PublishingHouseGenericRepository.GetByIdAsync(publishingHouseId);
+            var author = await _unitOfWork.CreateRepository<Author>().GetByIdAsync(mainAuthorId);
+            var publishingHouse = await _unitOfWork.CreateRepository<PublishingHouse>().GetByIdAsync(publishingHouseId);
 
             if (author == null)
                 return false;

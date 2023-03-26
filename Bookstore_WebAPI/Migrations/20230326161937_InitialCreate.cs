@@ -41,14 +41,12 @@ namespace Bookstore_WebAPI.Migrations
                 name: "AuthorPublishingHouses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
                     PublishingHouseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuthorPublishingHouses", x => x.Id);
+                    table.PrimaryKey("PK_AuthorPublishingHouses", x => new { x.PublishingHouseId, x.AuthorId });
                     table.ForeignKey(
                         name: "FK_AuthorPublishingHouses_Authors_AuthorId",
                         column: x => x.AuthorId,
@@ -87,14 +85,12 @@ namespace Bookstore_WebAPI.Migrations
                 name: "AuthorBooks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
                     BookId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuthorBooks", x => x.Id);
+                    table.PrimaryKey("PK_AuthorBooks", x => new { x.AuthorId, x.BookId });
                     table.ForeignKey(
                         name: "FK_AuthorBooks_Authors_AuthorId",
                         column: x => x.AuthorId,
@@ -110,11 +106,6 @@ namespace Bookstore_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuthorBooks_AuthorId",
-                table: "AuthorBooks",
-                column: "AuthorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AuthorBooks_BookId",
                 table: "AuthorBooks",
                 column: "BookId");
@@ -123,11 +114,6 @@ namespace Bookstore_WebAPI.Migrations
                 name: "IX_AuthorPublishingHouses_AuthorId",
                 table: "AuthorPublishingHouses",
                 column: "AuthorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AuthorPublishingHouses_PublishingHouseId",
-                table: "AuthorPublishingHouses",
-                column: "PublishingHouseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_PublishingHouseId",

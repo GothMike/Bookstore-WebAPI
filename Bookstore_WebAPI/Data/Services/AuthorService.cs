@@ -6,30 +6,10 @@ using Bookstore_WebAPI.Persistence.UnitOfWork;
 
 namespace Bookstore_WebAPI.Data.Services
 {
-    public class AuthorService : IAuthorService
+    public class AuthorService : BaseAbstractService<Author, AuthorDto>, IAuthorService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public AuthorService(IUnitOfWork unitOfWork, IMapper mapper)
+        public AuthorService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-        }
-
-        public async Task<Author> GetEntityByIdAsync(int id)
-        {
-            return  await _unitOfWork.AuthorGenericRepository.GetByIdAsync(id);
-        }
-
-        public async Task<IEnumerable<AuthorDto>> GetAllAsync()
-        {
-            return _mapper.Map<IEnumerable<AuthorDto>>(await _unitOfWork.AuthorGenericRepository.GetAllAsync());
-        }
-
-        public async Task<AuthorDto> GetMapEntityByIdAsync(int id)
-        {
-            return _mapper.Map<AuthorDto>(await _unitOfWork.AuthorGenericRepository.GetByIdAsync(id));
         }
 
         public async Task<IEnumerable<BookDto>> GetAllMappingAuthorBooks(int id)
@@ -39,7 +19,7 @@ namespace Bookstore_WebAPI.Data.Services
 
         public async Task CreateAuthorAsync(AuthorDto entityDto)
         {
-            await _unitOfWork.AuthorGenericRepository.AddAsync(ConvertToMapEntity(entityDto));
+            await _unitOfWork.CreateRepository<Author>().AddAsync(ConvertToMapEntity(entityDto));
             await _unitOfWork.SaveAsync();
         }
 
@@ -48,7 +28,7 @@ namespace Bookstore_WebAPI.Data.Services
             entity.FirstName = entityDto.FirstName;
             entity.LastName = entityDto.LastName;
 
-            _unitOfWork.AuthorGenericRepository.Update(entity);
+            _unitOfWork.CreateRepository<Author>().Update(entity);
             await _unitOfWork.SaveAsync();
         }
 
@@ -57,16 +37,11 @@ namespace Bookstore_WebAPI.Data.Services
             var authorBooks = await _unitOfWork.BookRepository.GetAllAuthorsBooks(entity.Id);
 
             if (authorBooks.Count() != 0)
-                _unitOfWork.BookGenericRepository.DeleteAllEntites(authorBooks);
+                _unitOfWork.CreateRepository<Book>().DeleteAllEntites(authorBooks);
 
-            _unitOfWork.AuthorGenericRepository.Delete(entity);
+            _unitOfWork.CreateRepository<Author>().Delete(entity);
 
             await _unitOfWork.SaveAsync();
-        }
-
-        public Author ConvertToMapEntity(AuthorDto entityDto)
-        {
-            return _mapper.Map<Author>(entityDto);
         }
     }
 }

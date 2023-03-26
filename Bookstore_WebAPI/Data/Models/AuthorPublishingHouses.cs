@@ -2,7 +2,6 @@
 {
     public class AuthorPublishingHouses
     {
-        public int Id { get; set; }
         public int AuthorId { get; set; }
         public int PublishingHouseId { get; set; }
         public Author Author { get; set; }

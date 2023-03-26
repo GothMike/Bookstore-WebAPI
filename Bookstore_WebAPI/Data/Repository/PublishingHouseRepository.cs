@@ -13,5 +13,10 @@ namespace Bookstore_WebAPI.Data.Repository
         {
             _context = context;
         }
+
+        public async Task<AuthorPublishingHouses> GetAPHById(int id)
+        {
+            return await _context.AuthorPublishingHouses.FirstOrDefaultAsync(a => a.PublishingHouseId == id);
+        }
     }
 }

@@ -46,21 +46,13 @@ namespace Bookstore_WebAPI.Migrations
 
             modelBuilder.Entity("Bookstore_WebAPI.Data.Models.AuthorBooks", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
                     b.Property<int>("BookId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
+                    b.HasKey("AuthorId", "BookId");
 
                     b.HasIndex("BookId");
 
@@ -69,23 +61,15 @@ namespace Bookstore_WebAPI.Migrations
 
             modelBuilder.Entity("Bookstore_WebAPI.Data.Models.AuthorPublishingHouses", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("PublishingHouseId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PublishingHouseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
+                    b.HasKey("PublishingHouseId", "AuthorId");
 
                     b.HasIndex("AuthorId");
-
-                    b.HasIndex("PublishingHouseId");
 
                     b.ToTable("AuthorPublishingHouses");
                 });
