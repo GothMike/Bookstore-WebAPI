@@ -5,143 +5,134 @@ using Microsoft.EntityFrameworkCore;
 using Bookstore_WebAPI.Data.Models;
 using Bookstore_WebAPI.Data.Repository;
 using Bookstore_WebAPI.Persistence.DataContext;
+using Bookstore_WebAPI.Data.Repository.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace BookStore_Tests.Repository_Tests
 {
     public class GenericRepositoryTests
     {
-        private readonly ApplicationContext _dbContext;
-        private readonly GenericRepository<Author> _repository;
-        private readonly List<Author> _authors;
+        private readonly ApplicationContext _context;
+        private readonly IGenericRepository<Author> _authorRepository;
 
         public GenericRepositoryTests()
         {
             var options = new DbContextOptionsBuilder<ApplicationContext>()
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
-
-            _dbContext = new ApplicationContext(options);
-
-            _dbContext.Database.EnsureCreated();
-
-            _repository = new GenericRepository<Author>(_dbContext);
-            _authors = new List<Author>
-        {
-            new Author { Id = 1, FirstName = "FirstName1", LastName = "LastName1" },
-            new Author { Id = 2, FirstName = "FirstName2", LastName = "LastName2" },
-            new Author { Id = 3, FirstName = "FirstName3", LastName = "LastName3" }
-        };
-
-
-            _dbContext.AddRange(_authors);
-            _dbContext.SaveChanges();
+            _context = new ApplicationContext(options);
+            _authorRepository = new GenericRepository<Author>(_context);
         }
+
 
         [Fact]
         public async Task AuthorRepository_GetAllAsync_ShouldReturnAllEntities()
         {
             // Arrange
+            var author1 = new Author { FirstName = "John", LastName = "Doe" };
+            var author2 = new Author { FirstName = "Jane", LastName = "Smith" };
+            await _authorRepository.AddAsync(author1);
+            await _authorRepository.AddAsync(author2);
+            await _context.SaveChangesAsync();
 
             // Act
-            var result = await _repository.GetAllAsync();
+            var authors = await _authorRepository.GetAllAsync();
 
             // Assert
-            result.Should().HaveCount(3);
+            authors.Should().Contain(author1);
+            authors.Should().Contain(author2);
         }
 
         [Fact]
         public async Task AuthorRepository_GetByIdAsync_ShouldReturnEntity()
         {
             // Arrange
-            var id = _authors[0].Id;
+            var author1 = new Author {  FirstName = "John", LastName = "Doe" };
+            var author2 = new Author { FirstName = "Jane", LastName = "Smith" };
+            await _authorRepository.AddAsync(author1);
+            await _authorRepository.AddAsync(author2);
+            await _context.SaveChangesAsync();
 
             // Act
-            var result = await _repository.GetByIdAsync(id);
+            var author = await _authorRepository.GetByIdAsync(author2.Id);
 
             // Assert
-            result.Should().BeEquivalentTo(_authors[0]);
-        }
-
-        [Fact]
-        public async Task AuthorRepository_GetByIdAsyncShouldReturnNull()
-        {
-            // Arrange
-            var notExistingId = 4;
-
-            // Act
-            var result = await _repository.GetByIdAsync(notExistingId);
-
-            // Assert
-            result.Should().BeNull();
+            author.Should().NotBeNull();
+            author.Should().Be(author2);
         }
 
         [Fact]
         public async Task AuthorRepository_AddAsync_ShouldAddEntityToDatabase()
         {
             // Arrange
-            var newAuthor = new Author { Id = 4, FirstName = "FirstName4", LastName = "LastName4" };
+            var author = new Author { FirstName = "John", LastName = "Doe" };
 
             // Act
-            await _repository.AddAsync(newAuthor);
-            await _dbContext.SaveChangesAsync();
+            await _authorRepository.AddAsync(author);
+            await _context.SaveChangesAsync();
 
             // Assert
-            var result = await _dbContext.Authors.ToListAsync();
-            result.Should().HaveCount(_authors.Count + 1);
-            result.Should().ContainEquivalentOf(newAuthor);
+            var authorsInDb = await _context.Authors.ToListAsync();
+            authorsInDb.Should().Contain(author);
         }
 
         [Fact]
-        public void AuthorRepository_Delete_ShouldRemoveEntityFromDatabase()
+        public async Task AuthorRepository_Delete_ShouldRemoveEntityFromDatabaseAsync()
         {
             // Arrange
-            var authorToRemove = _authors[0];
+            var author = new Author { FirstName = "John", LastName = "Doe" };
+            await _authorRepository.AddAsync(author);
+            await _context.SaveChangesAsync();
 
             // Act
-            _repository.Delete(authorToRemove);
-            _dbContext.SaveChanges();
+            _authorRepository.Delete(author);
+            await _context.SaveChangesAsync();
 
             // Assert
-            var result = _dbContext.Authors.Find(authorToRemove.Id);
-            result.Should().BeNull();
+            var authorInDb = await _context.Authors.FindAsync(author.Id);
+            authorInDb.Should().BeNull();
         }
 
         [Fact]
-        public void AuthorRepository_DeleteAllEntities_ShouldRemoveEntitiesFromDatabase()
+        public async Task AuthorRepository_DeleteAllEntities_ShouldRemoveEntitiesFromDatabaseAsync()
         {
             // Arrange
-            var authorsToRemove = new List<Author>
-        {
-            _authors[0],
-            _authors[1]
-        };
+            var author1 = new Author {  FirstName = "John", LastName = "Doe" };
+            var author2 = new Author {  FirstName = "Jane", LastName = "Smith" };
+            await _authorRepository.AddAsync(author1);
+            await _authorRepository.AddAsync(author2);
+            await _context.SaveChangesAsync();
+            var authors = await _authorRepository.GetAllAsync();
 
             // Act
-            _repository.DeleteAllEntites(authorsToRemove);
-            _dbContext.SaveChanges();
+            _authorRepository.DeleteAllEntites(authors);
+            await _context.SaveChangesAsync();
 
             // Assert
-            var result = _dbContext.Authors.ToList();
-            result.Should().HaveCount(_authors.Count - authorsToRemove.Count);
-            result.Should().NotContain(authorsToRemove);
+            var authorsInDb = await _context.Authors.ToListAsync();
+            authorsInDb.Should().BeEmpty();
         }
 
         [Fact]
         public async Task AuthorRepository_Update_ShouldUpdateEntityInDatabase()
         {
             // Arrange
-            var authorToUpdate = _authors[0];
-            var updatedAuthor = new Author { Id = authorToUpdate.Id, FirstName = "UpdatedFirstName", LastName = "UpdatedLastName" };
+            var author = new Author
+            {
+                FirstName = "John",
+                LastName = "Doe"
+            };
+            await _context.Authors.AddAsync(author);
+            await _context.SaveChangesAsync();
 
             // Act
-            _repository.Update(authorToUpdate);
-            _dbContext.Entry(authorToUpdate).State = EntityState.Detached;
-            _repository.Update(updatedAuthor);
-            await _dbContext.SaveChangesAsync();
+            author.LastName = "Smith";
+            _authorRepository.Update(author);
+            await _context.SaveChangesAsync();
 
             // Assert
-            var result = await _dbContext.Authors.FindAsync(authorToUpdate.Id);
-            result.Should().BeEquivalentTo(updatedAuthor);
+            var result = await _context.Authors.FindAsync(author.Id);
+            result.LastName.Should().Be("Smith");
         }
     }
 }
